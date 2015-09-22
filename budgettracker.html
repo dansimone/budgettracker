@@ -1,0 +1,74 @@
+<head>
+  <title>Leaderboard</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+<div class="outer">
+  <div class="logo"></div>
+
+  {{> monthselection}}
+  {{> transactionslist}}
+  {{> categorieslist}}
+</div>
+</body>
+
+<template name="monthselection">
+  <h1 class="title">Month</h1>
+  <input class="month-select" type="month" value="{{getCurrentMonth}}"/>
+</template>
+
+<template name="transactionslist">
+  <h1 class="title">Transactions</h1>
+
+  <div class="add-transaction">
+    Add Transaction
+  </div>
+  {{#if  isAddingTransaction}}
+    <form class="add-transaction">
+      Category:
+      <select name="category">
+        {{#each categories}}
+          <option value="{{_id}}">{{_id}}</option>
+        {{/each}}
+      </select>
+      <br>
+      Amount: <input type="number" min="0.01" step="0.01" name="amount"><br>
+      Date: <input type="date" name="date" value="{{getTodaysDateFormatted}}"><br>
+      Comments: <input type="text" name="comments"><br>
+      <input type="submit" value="Add">
+    </form>
+  {{/if}}
+  <ol>
+    {{#each transactions}}
+      <li>
+        {{getFormattedDate}} -- {{category_id}} -- {{amount}} -- {{comments}}
+      </li>
+    {{/each}}
+  </ol>
+</template>
+
+<template name="categorieslist">
+  <h1 class="title">Categories</h1>
+
+  <div class="add-category">
+    Add Category
+  </div>
+  {{#if  isAddingCategory}}
+    <form class="add-category">
+      Name: <input type="text" name="name"><br>
+      Amount: <input type="number" min="0.01" step="0.01" name="amount"><br>
+      <input type="submit" value="Add">
+    </form>
+  {{/if}}
+  {{#each categories}}
+    <h2 class="title">{{_id}}</h2>
+    Amount: {{amount}}
+    Left Over: {{getAmountLeftForThisMonth}}
+  {{/each}}
+</template>
+
+
+
+
