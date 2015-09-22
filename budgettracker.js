@@ -1,6 +1,3 @@
-// Set up a collection to contain player information. On the server,
-// it is backed by a MongoDB collection named "players".
-
 Players = new Mongo.Collection("players");
 Categories = new Mongo.Collection("categories");
 Transactions = new Mongo.Collection("transactions");
@@ -17,9 +14,9 @@ if (Meteor.isClient) {
       return monthStartDate.getFullYear() + "-" + month;
     }
   });
-  Template.body.events({
+  Template.monthselection.events({
     'change .month-select': function () {
-      var date = new Date(Date.parse(event.target.value + " 01", "yyyy-MM dd"));
+      var date = new Date(event.target.value + "-01 PDT");
       console.log("Selected Date: " + date);
       Session.set("selectedMonth", date);
     }
@@ -42,7 +39,6 @@ if (Meteor.isClient) {
           }, {sort: {date: -1}});
     },
     categories: function () {
-      console.log(Categories.find().fetch());
       return Categories.find();
     },
     getFormattedDate: function () {
@@ -58,7 +54,7 @@ if (Meteor.isClient) {
       var day = today.getDate() + 1;
       day = day < 10 ? '0' + day : '' + day;
       var dateFormatted = today.getFullYear() + "-" + month + "-" + day;
-      console.log("OKOKKO" + dateFormatted);
+      //console.log("OKOKKO" + dateFormatted);
       return dateFormatted;
     }
   });
@@ -66,33 +62,31 @@ if (Meteor.isClient) {
       {
         'click div.add-transaction': function () {
           Session.set("adding_transaction", true);
+        },
+        'submit form.add-transaction': function () {
+          // Prevent default browser form submit
+          event.preventDefault();
+          var category = event.target.category.value;
+          var amount = event.target.amount.value;
+          var dateString = event.target.date.value + " PDT";
+          var comments = event.target.comments.value;
+
+          Transactions.insert({
+            category_id: category,
+            amount: parseFloat(amount),
+            date: new Date(date),
+            comments: comments
+          });
+          Session.set("adding_transaction", false);
         }
       }
   );
-  Template.body.events({
-    'submit form.add-transaction': function () {
-      // Prevent default browser form submit
-      event.preventDefault();
-      var category = event.target.category.value;
-      var amount = event.target.amount.value;
-      var date = event.target.date.value;
-      var comments = event.target.comments.value;
-      Transactions.insert({
-        category_id: category,
-        amount: parseFloat(amount),
-        date: new Date(date),
-        comments: comments
-      });
-      Session.set("adding_transaction", false);
-    }
-  });
 
   /**
    * Categories List Helpers
    */
   Template.categorieslist.helpers({
     categories: function () {
-      console.log(Categories.find().fetch());
       return Categories.find();
     },
     isAddingCategory: function () {
@@ -123,21 +117,18 @@ if (Meteor.isClient) {
   Template.categorieslist.events(
       {
         'click div.add-category': function () {
-          console.log("111");
           Session.set("adding_category", true);
+        },
+        'submit form.add-category': function () {
+          // Prevent default browser form submit
+          event.preventDefault();
+          var name = event.target.name.value;
+          var amount = event.target.amount.value;
+          Categories.insert({_id: name, amount: parseFloat(amount)});
+          Session.set("adding_category", false);
         }
       }
   );
-  Template.body.events({
-    'submit form.add-category': function () {
-      // Prevent default browser form submit
-      event.preventDefault();
-      var name = event.target.name.value;
-      var amount = event.target.amount.value;
-      Categories.insert({_id: name, amount: parseFloat(amount)});
-      Session.set("adding_category", false);
-    }
-  });
 }
 
 // On server startup, create some players if the database is empty.
@@ -146,7 +137,6 @@ if (Meteor.isServer) {
     if (Transactions.find().count() === 0) {
       var transactions = JSON.parse(Assets.getText("transactions.json"));
       _.each(transactions, function (transaction) {
-        console.log("Transaction: " + transaction.category_id)
         Transactions.insert(
             {
               category_id: transaction.category_id,
@@ -163,35 +153,6 @@ if (Meteor.isServer) {
         Categories.insert(category);
       })
     }
-    /*
-     if (Categories.find().count() === 0) {
-     var categories = [
-     {_id: "General Spending", amount: 333.00},
-     {_id: "Dining Out", amount: 13.00},
-     {_id: "Gasoline", amount: 121.00},
-     {_id: "Groceries", amount: 551.00}
-     ];
-     _.each(categories, function (category) {
-     Categories.insert(category);
-     })
-     }
-
-     if (Transactions.find().count() === 0) {
-     var transactions = [
-     {category_id: "Groceries", comments: "foo", date: new Date(2015, 8, 13), amount: 8.99},
-     {category_id: "Groceries", comments: "foo", date: new Date(2015, 8, 13), amount: 6.99},
-     {category_id: "General Spending", comments: "foo1", date: new Date(2015, 8, 13), amount: 72.00},
-     {category_id: "Dining Out", comments: "foo2", date: new Date(2015, 8, 14), amount: 82.49},
-     {category_id: "Groceries", comments: "foo", date: new Date(2015, 7, 13), amount: 8.99},
-     {category_id: "Groceries", comments: "foo", date: new Date(2015, 7, 13), amount: 6.99},
-     {category_id: "General Spending", comments: "foo1", date: new Date(2015, 7, 13), amount: 72.00},
-     {category_id: "Dining Out", comments: "foo2", date: new Date(2015, 7, 14), amount: 82.49}];
-
-     _.each(transactions, function (category) {
-     Transactions.insert(category);
-     });
-     }
-     */
   });
 }
 
