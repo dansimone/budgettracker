@@ -61,7 +61,13 @@ if (Meteor.isClient) {
   Template.transactionslist.events(
       {
         'click div.add-transaction': function () {
-          Session.set("adding_transaction", true);
+          event.preventDefault();
+          if (Session.get("adding_transaction")) {
+            Session.set("adding_transaction", false);
+          }
+          else {
+            Session.set("adding_transaction", true);
+          }
         },
         'submit form.add-transaction': function () {
           // Prevent default browser form submit
@@ -74,7 +80,7 @@ if (Meteor.isClient) {
           Transactions.insert({
             category_id: category,
             amount: parseFloat(amount),
-            date: new Date(date),
+            date: new Date(dateString),
             comments: comments
           });
           Session.set("adding_transaction", false);
@@ -87,13 +93,13 @@ if (Meteor.isClient) {
    */
   Template.categorieslist.helpers({
     categories: function () {
-      return Categories.find();
+      return Categories.find({}, {sort: {_id: 1}});;
     },
     isAddingCategory: function () {
       return Session.get("adding_category");
     },
-    getAmountLeftForThisMonth: function () {
-      var totalAmountForMonth = 0;
+    getAmountUsedForThisMonth: function () {
+      var amountUsed = 0;
       var monthStartDate = getSelectedMonthStartDate();
       var firstDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth(), 1);
       var lastDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth() + 1, 1);
@@ -108,16 +114,23 @@ if (Meteor.isClient) {
       );
       txnsThisMonth.forEach(function (txn) {
         //console.log("RRR " + txn.date);
-        totalAmountForMonth += txn.amount;
+        amountUsed += txn.amount;
       });
       //console.log("Total amount for: " + this._id + " = " + totalAmountForMonth);
-      return this.amount - totalAmountForMonth;
+      return amountUsed;
     }
   });
   Template.categorieslist.events(
       {
         'click div.add-category': function () {
-          Session.set("adding_category", true);
+          event.preventDefault();
+          if (Session.get("adding_category")) {
+            Session.set("adding_category", false);
+          }
+          else {
+            console.log("YEAH1");
+            Session.set("adding_category", true);
+          }
         },
         'submit form.add-category': function () {
           // Prevent default browser form submit
