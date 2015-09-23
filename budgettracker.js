@@ -39,7 +39,7 @@ if (Meteor.isClient) {
           }, {sort: {date: -1}});
     },
     getAmount: function () {
-      return this.amount.toFixed(2);
+      return Math.abs(this.amount).toFixed(2);
     },
     categories: function () {
       return Categories.find();
@@ -52,6 +52,8 @@ if (Meteor.isClient) {
     },
     getTodaysDateFormatted: function () {
       var today = new Date();
+      //today = new Date(today.getTime() + (3600000*offset));
+
       var month = today.getMonth() + 1;
       month = month < 10 ? '0' + month : '' + month;
       var day = today.getDate() + 1;
@@ -80,10 +82,19 @@ if (Meteor.isClient) {
           var dateString = event.target.date.value + " PDT";
           var comments = event.target.comments.value;
 
+          //
+          //var date = new Date(dateString);
+          //var today = new Date();
+          //console.log("TODAY: " + today);
+          //if (today.getFullYear() == date.getFullYear() && today.getMonth() == date.getMonth()
+          //    && today.getDate() == date.getDate()) {
+          //}
+
           Transactions.insert({
             category_id: category,
             amount: parseFloat(-amount),
             date: new Date(dateString),
+            type: "withdrawal",
             comments: comments
           });
           Session.set("adding_transaction", false);
@@ -97,7 +108,6 @@ if (Meteor.isClient) {
   Template.categorieslist.helpers({
     categories: function () {
       return Categories.find({}, {sort: {_id: 1}});
-      ;
     },
     isAddingCategory: function () {
       return Session.get("adding_category");
@@ -164,6 +174,7 @@ if (Meteor.isServer) {
               category_id: transaction.category_id,
               comments: transaction.comments,
               date: new Date(transaction.date),
+              type: transaction.type,
               amount: transaction.amount
             }
         );
