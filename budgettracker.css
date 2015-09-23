@@ -35,3 +35,9 @@ body {
     display: block;
     font-size: 12px;
 }
+
+/* Overrides to Bootstrap elements */
+.form-group.required .control-label:before {
+    content: "* ";
+    color: red;
+}

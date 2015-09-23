@@ -61,6 +61,9 @@ if (Meteor.isClient) {
         return Session.get("adding_transaction_withdrawal");
       }
     },
+    getErrorClass: function (fieldName) {
+      return getErrorClass(fieldName);
+    },
     getTodaysDateFormatted: function () {
       var today = new Date();
       //today = new Date(today.getTime() + (3600000*offset));
@@ -88,8 +91,30 @@ if (Meteor.isClient) {
         'submit form.add-transaction': function () {
           // Prevent default browser form submit
           event.preventDefault();
+
+          var error = false;
           var amount = event.target.amount.value;
+          if (amount.length == 0) {
+            Session.set("formError-transaction-amount", true);
+            error = true;
+          }
+          else {
+            Session.set("formError-transaction-amount", false);
+          }
           var dateString = event.target.date.value + " PDT";
+          if (event.target.date.value.length == 0) {
+            Session.set("formError-transaction-date", true);
+            error = true;
+          }
+          else {
+            Session.set("formError-transaction-date", false);
+          }
+
+          // Return control if any form errors found
+          if (error) {
+            return;
+          }
+
           var comments = event.target.comments.value;
           var type = event.target.type.value;
           var category;
@@ -144,7 +169,11 @@ if (Meteor.isClient) {
             sortOrder = Session.get('txnSortField').amount * -1;
           }
           Session.set('txnSortField', {amount: sortOrder, date: -1});
+        },
+        'click .form-group.has-error input,textarea': function (event) {
+          Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
         }
+
         //'click tr.transaction-row td': function () {
         //  var name = event.target.hidden();
         //  //var newText = $(this).val();
@@ -190,6 +219,9 @@ if (Meteor.isClient) {
       else {
         return "progress-bar-success";
       }
+    },
+    getErrorClass: function (fieldName) {
+      return getErrorClass(fieldName);
     }
   });
   Template.categorieslist.events(
@@ -206,10 +238,33 @@ if (Meteor.isClient) {
         'submit form.add-category': function () {
           // Prevent default browser form submit
           event.preventDefault();
+          var error = false;
           var name = event.target.name.value;
+          if (name.length == 0) {
+            Session.set("formError-category-name", true);
+            error = true;
+          }
+          else {
+            Session.set("formError-category-name", false);
+          }
           var amount = event.target.amount.value;
+          if (amount.length == 0) {
+            Session.set("formError-category-amount", true);
+            error = true;
+          }
+          else {
+            Session.set("formError-category-amount", false);
+          }
+          // Return control if any form errors found
+          if (error) {
+            return;
+          }
+
           Categories.insert({_id: name, amount: parseFloat(amount)});
           Session.set("adding_category", false);
+        },
+        'click .form-group.has-error input,textarea': function (event) {
+          Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
         }
       }
   );
@@ -276,4 +331,13 @@ function getAmountUsedForMonth(transaction, monthStartDate) {
     amountUsed -= txn.amount;
   });
   return amountUsed;
+}
+
+function getErrorClass(fieldName) {
+  if (Session.get("formError-" + fieldName) != null && Session.get("formError-" + fieldName)) {
+    return "has-error";
+  }
+  else {
+    return "";
+  }
 }
