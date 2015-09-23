@@ -30,13 +30,16 @@ if (Meteor.isClient) {
       var monthStartDate = getSelectedMonthStartDate();
       var firstDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth(), 1);
       var lastDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth() + 1, 1);
+      if (Session.get('txnSortField') == null) {
+        Session.set('txnSortField', {date: -1});
+      }
       return Transactions.find(
           {
             date: {
               $gte: firstDay,
               $lt: lastDay
             }
-          }, {sort: {date: -1}});
+          }, {sort: Session.get('txnSortField')});
     },
     getAmount: function () {
       return Math.abs(this.amount).toFixed(2);
@@ -49,6 +52,14 @@ if (Meteor.isClient) {
     },
     isAddingTransaction: function () {
       return Session.get("adding_transaction");
+    },
+    isWithdrawal: function () {
+      if (Session.get("adding_transaction_withdrawal") == null) {
+        return true;
+      }
+      else {
+        return Session.get("adding_transaction_withdrawal");
+      }
     },
     getTodaysDateFormatted: function () {
       var today = new Date();
@@ -77,11 +88,17 @@ if (Meteor.isClient) {
         'submit form.add-transaction': function () {
           // Prevent default browser form submit
           event.preventDefault();
-          var category = event.target.category.value;
           var amount = event.target.amount.value;
           var dateString = event.target.date.value + " PDT";
           var comments = event.target.comments.value;
-
+          var type = event.target.type.value;
+          var category;
+          if (type == "deposit") {
+            category = "Deposit";
+          }
+          else {
+            category = event.target.category.value;
+          }
           //
           //var date = new Date(dateString);
           //var today = new Date();
@@ -94,11 +111,46 @@ if (Meteor.isClient) {
             category_id: category,
             amount: parseFloat(-amount),
             date: new Date(dateString),
-            type: "withdrawal",
+            type: type,
             comments: comments
           });
           Session.set("adding_transaction", false);
+        },
+        'click select.transaction-type': function () {
+          var name = event.target.value;
+          if (name == "deposit") {
+            Session.set("adding_transaction_withdrawal", false);
+          } else {
+            Session.set("adding_transaction_withdrawal", true);
+          }
+        },
+        'click th.sort-categories': function () {
+          var sortOrder = 1;
+          if (Session.get('txnSortField') != null && Session.get('txnSortField').category_id != null) {
+            sortOrder = Session.get('txnSortField').category_id * -1;
+          }
+          Session.set('txnSortField', {category_id: sortOrder, date: -1});
+        },
+        'click th.sort-dates': function () {
+          var sortOrder = 1;
+          if (Session.get('txnSortField') != null && Session.get('txnSortField').date != null) {
+            sortOrder = Session.get('txnSortField').date * -1;
+          }
+          Session.set('txnSortField', {date: sortOrder});
+        },
+        'click th.sort-amounts': function () {
+          var sortOrder = 1;
+          if (Session.get('txnSortField') != null && Session.get('txnSortField').amount != null) {
+            sortOrder = Session.get('txnSortField').amount * -1;
+          }
+          Session.set('txnSortField', {amount: sortOrder, date: -1});
         }
+        //'click tr.transaction-row td': function () {
+        //  var name = event.target.hidden();
+        //  //var newText = $(this).val();
+        //  //$(this).parent().text(newText).find('textarea').remove();
+        //  console.log("OKOK1 " + name);
+        //}
       }
   );
 
