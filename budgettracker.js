@@ -38,6 +38,9 @@ if (Meteor.isClient) {
             }
           }, {sort: {date: -1}});
     },
+    getAmount: function () {
+      return this.amount.toFixed(2);
+    },
     categories: function () {
       return Categories.find();
     },
@@ -79,7 +82,7 @@ if (Meteor.isClient) {
 
           Transactions.insert({
             category_id: category,
-            amount: parseFloat(amount),
+            amount: parseFloat(-amount),
             date: new Date(dateString),
             comments: comments
           });
@@ -93,31 +96,38 @@ if (Meteor.isClient) {
    */
   Template.categorieslist.helpers({
     categories: function () {
-      return Categories.find({}, {sort: {_id: 1}});;
+      return Categories.find({}, {sort: {_id: 1}});
+      ;
     },
     isAddingCategory: function () {
       return Session.get("adding_category");
     },
+    getAmount: function () {
+      return this.amount.toFixed(2);
+    },
     getAmountUsedForThisMonth: function () {
-      var amountUsed = 0;
       var monthStartDate = getSelectedMonthStartDate();
-      var firstDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth(), 1);
-      var lastDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth() + 1, 1);
-      txnsThisMonth = Transactions.find(
-          {
-            category_id: this._id,
-            date: {
-              $gte: firstDay,
-              $lt: lastDay
-            }
-          }
-      );
-      txnsThisMonth.forEach(function (txn) {
-        //console.log("RRR " + txn.date);
-        amountUsed += txn.amount;
-      });
-      //console.log("Total amount for: " + this._id + " = " + totalAmountForMonth);
-      return amountUsed;
+      return getAmountUsedForMonth(this, monthStartDate).toFixed(2);
+    },
+    getPercentUsed: function () {
+      var monthStartDate = getSelectedMonthStartDate();
+      var amountUsed = getAmountUsedForMonth(this, monthStartDate);
+      var percentUsed = Math.round(amountUsed / this.amount * 100);
+      //console.log("Percent Used: " + percentUsed);
+      return percentUsed;
+    },
+    getProgressBarClass: function () {
+      var monthStartDate = getSelectedMonthStartDate();
+      var amountUsed = getAmountUsedForMonth(this, monthStartDate);
+      var percentUsed = Math.round(amountUsed / this.amount * 100);
+      if (percentUsed > 80) {
+        return "progress-bar-danger";
+      } else if (percentUsed > 50) {
+        return "progress-bar-warning";
+      }
+      else {
+        return "progress-bar-success";
+      }
     }
   });
   Template.categorieslist.events(
@@ -128,7 +138,6 @@ if (Meteor.isClient) {
             Session.set("adding_category", false);
           }
           else {
-            console.log("YEAH1");
             Session.set("adding_category", true);
           }
         },
@@ -163,7 +172,12 @@ if (Meteor.isServer) {
     if (Categories.find().count() === 0) {
       var categories = JSON.parse(Assets.getText("categories.json"));
       _.each(categories, function (category) {
-        Categories.insert(category);
+        Categories.insert(
+            {
+              _id: category._id,
+              amount: Math.abs(category.amount)
+            }
+        );
       })
     }
   });
@@ -180,4 +194,23 @@ function getSelectedMonthStartDate() {
     var today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
   }
+}
+
+function getAmountUsedForMonth(transaction, monthStartDate) {
+  var amountUsed = 0;
+  var firstDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth(), 1);
+  var lastDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth() + 1, 1);
+  txnsThisMonth = Transactions.find(
+      {
+        category_id: transaction._id,
+        date: {
+          $gte: firstDay,
+          $lt: lastDay
+        }
+      }
+  );
+  txnsThisMonth.forEach(function (txn) {
+    amountUsed -= txn.amount;
+  });
+  return amountUsed;
 }
