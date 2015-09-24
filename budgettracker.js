@@ -4,6 +4,42 @@ Transactions = new Mongo.Collection("transactions");
 
 if (Meteor.isClient) {
   /**
+   * Main Helpers
+   */
+  Template.main.helpers({
+    isLoggedIn: function () {
+      return Session.get("logged-in") != null && Session.get("logged-in");
+    }
+  });
+  Template.main.events({
+    'click a.logout': function () {
+      event.preventDefault();
+      Session.clear("logged-in");
+    }
+  });
+
+  /**
+   * Sign In Helpers
+   */
+  Template.signin.events({
+    'submit form.login-form': function () {
+      event.preventDefault();
+      var signInForm = $(event.currentTarget);
+      var passcode = signInForm.find('.passcode').val();
+      if (passcode != "9999") {
+        var l = 20;
+        for (var i = 0; i < 7; i++) {
+          signInForm.animate({'margin-left': "+=" + ( l = -l ) + 'px'}, 50);
+        }
+        document.getElementById('passcode').value = "";
+      } else {
+        Session.setPersistent("logged-in", true);
+      }
+      return false;
+    }
+  });
+
+  /**
    * Month Selector Helpers
    */
   Template.monthselection.helpers({
@@ -298,8 +334,15 @@ if (Meteor.isServer) {
         );
       })
     }
+    //if (Meteor.users.find().count() === 0) {
+    //  var categories = JSON.parse(Assets.getText("users.json"));
+    //  _.each(categories, function (user) {
+    //   Meteor.users.insert(user);
+    // })
+    //}
   });
 }
+
 
 /**
  * General Helper Functions.

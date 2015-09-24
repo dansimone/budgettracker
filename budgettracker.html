@@ -5,47 +5,86 @@
 </head>
 
 <body role="document">
-<div class="navbar navbar-inverse navbar navbar-default navbar-static-top">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">
-        <img src="/images/nathan-vivi-logo.png" alt="">
-      </a>
-    </div>
-    <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-        <li class="x-active"><a href="#">Home</a></li>
-        <li><a href="#transactions">Transactions</a></li>
-        <li><a href="#categories">Categories</a></li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row">
-    <div class="col-sm-offset-2 col-sm-8">
-      <div class="text-center">
-        <h1>Our Budget</h1>
-      </div>
-      {{> monthselection}}
-      {{> transactionslist}}
-      {{> categorieslist}}
-    </div>
-  </div>
-</div>
+{{> main}}
 </body>
 
+<!-- Main Template -->
+<template name="main">
+  {{#if  isLoggedIn}}
+    <div class="navbar navbar-inverse navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">
+            <img src="/images/nathan-vivi-logo.png" alt="">
+          </a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="x-active"><a href="#">Home</a></li>
+            <li><a href="#transactions">Transactions</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#logout" class="logout">Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-offset-2 col-sm-8">
+          <div class="text-center">
+            <h1 class="title">Our Budget</h1>
+          </div>
+          {{> monthselection}}
+          {{> transactionslist}}
+          {{> categorieslist}}
+        </div>
+      </div>
+    </div>
+  {{else}}
+    {{> signin}}
+  {{/if}}
+</template>
+
+<!-- Sign In Template -->
+<template name="signin">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-offset-4 col-sm-4">
+        <div id="transactions" class="panel panel-default">
+          <div class="panel-heading">
+            <div class="panel-title-advanced clearfix">
+              <h1 class="panel-title subtitle">Log In</h1>
+            </div>
+          </div>
+          <div class="panel-body">
+            <form class="form-horizontal login-form">
+              <div class="form-group">
+                <label class="col-xs-3 control-label">Passcode:</label>
+                <input class="col-xs-6 passcode" name="passcode" id="passcode" type="password">
+              </div>
+              <div class="form-group">
+                <input class="btn btn-primary col-xs-offset-3" type="submit" value="Log In">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Month Selection Template -->
 <template name="monthselection">
   <div class="panel panel-default">
     <div class="panel-heading">
       <div class="panel-title-advanced clearfix">
-        <h1 class="panel-title title">Month</h1>
+        <h1 class="panel-title subtitle">Month</h1>
       </div>
     </div>
     <div class="panel-body">
@@ -56,11 +95,12 @@
   </div>
 </template>
 
+<!-- Transactions List Template -->
 <template name="transactionslist">
   <div id="transactions" class="panel panel-default">
     <div class="panel-heading">
       <div class="panel-title-advanced clearfix">
-        <h1 class="panel-title title">Transactions</h1>
+        <h1 class="panel-title subtitle">Transactions</h1>
       </div>
     </div>
     <div class="panel-body">
@@ -91,7 +131,7 @@
           </div>
           <div class="form-group">
             <label class="col-xs-3 control-label">Comments:</label>
-            <input class="col-xs-6" type="text" name="comments"><br>
+            <input class="col-xs-6" type="text" name="comments">
           </div>
           <div class="form-group required">
             <label class="col-xs-3 control-label">Type:</label>
@@ -131,11 +171,12 @@
   </div>
 </template>
 
+<!-- Categories List Template -->
 <template name="categorieslist">
   <div id="categories" class="panel panel-default">
     <div class="panel-heading">
       <div class="panel-title-advanced clearfix">
-        <h1 class="panel-title title">Categories</h1>
+        <h1 class="panel-title subtitle">Categories</h1>
       </div>
     </div>
     <div class="panel-body">
@@ -148,7 +189,7 @@
         <form class="add-category form-horizontal">
           <div class="form-group required {{getErrorClass "category-name"}}" name="category-name">
             <label class="col-xs-3 control-label">Name:</label>
-            <input class="col-xs-6" type="text" name="name"><br>
+            <input class="col-xs-6" type="text" name="name">
           </div>
           <div class="form-group required {{getErrorClass "category-amount"}}" name="category-amount">
             <label class="col-xs-3 control-label">Amount:</label>
