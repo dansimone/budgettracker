@@ -15,6 +15,7 @@ if (Meteor.isClient) {
     'click a.logout': function () {
       event.preventDefault();
       Session.clear("logged-in");
+      Meteor.logout();
     }
   });
 
@@ -25,16 +26,19 @@ if (Meteor.isClient) {
     'submit form.login-form': function () {
       event.preventDefault();
       var signInForm = $(event.currentTarget);
-      var passcode = signInForm.find('.passcode').val();
-      if (passcode != "9999") {
-        var l = 20;
-        for (var i = 0; i < 7; i++) {
-          signInForm.animate({'margin-left': "+=" + ( l = -l ) + 'px'}, 50);
+      var password = signInForm.find('.password').val();
+      Meteor.loginWithPassword("foo", password, function (error) {
+        // 3. Handle the response
+        if (Meteor.user()) {
+          Session.setPersistent("logged-in", true);
+        } else {
+          var l = 20;
+          for (var i = 0; i < 7; i++) {
+            signInForm.animate({'margin-left': "+=" + ( l = -l ) + 'px'}, 50);
+          }
+          document.getElementById('password').value = "";
         }
-        document.getElementById('passcode').value = "";
-      } else {
-        Session.setPersistent("logged-in", true);
-      }
+      });
       return false;
     }
   });
@@ -371,12 +375,13 @@ if (Meteor.isServer) {
         );
       })
     }
-    //if (Meteor.users.find().count() === 0) {
-    //  var categories = JSON.parse(Assets.getText("users.json"));
-    //  _.each(categories, function (user) {
-    //   Meteor.users.insert(user);
-    // })
-    //}
+    if (Meteor.users.find().count() === 0) {
+      var users = JSON.parse(Assets.getText("users.json"));
+      _.each(users, function (user) {
+        console.log("USER: " + user.toString());
+        Meteor.users.insert(user);
+      })
+    }
   });
 }
 
