@@ -46,6 +46,14 @@ body {
     font-size: 12px;
 }
 
+.transaction-amount {
+    display: inline;
+}
+
+.category-amount {
+    display: inline;
+}
+
 /* Overrides to Bootstrap elements */
 .form-group.required .control-label:before {
     content: "* ";

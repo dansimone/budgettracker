@@ -55,7 +55,7 @@
 <template name="signin">
   <div class="container">
     <div class="row">
-      <div class="col-sm-offset-4 col-sm-4">
+      <div class="col-sm-offset-4 col-sm-4 col-xs-offset-3 col-xs-6">
         <div id="transactions" class="panel panel-default">
           <div class="panel-heading">
             <div class="panel-title-advanced clearfix">
@@ -65,11 +65,11 @@
           <div class="panel-body">
             <form class="form-horizontal login-form">
               <div class="form-group">
-                <label class="col-xs-3 control-label">Passcode:</label>
-                <input class="col-xs-6 passcode" name="passcode" id="passcode" type="password">
+                <label class="col-xs-6 control-label">Passcode:</label>
+                <input class="col-xs-4 passcode" name="passcode" id="passcode" type="password">
               </div>
               <div class="form-group">
-                <input class="btn btn-primary col-xs-offset-3" type="submit" value="Log In">
+                <input class="btn btn-primary col-xs-offset-6" type="submit" value="Log In">
               </div>
             </form>
           </div>
@@ -155,14 +155,21 @@
         </thead>
         <tbody>
         {{#each transactions}}
-          <tr class="transaction-row">
+          <tr class="transaction-row" id="{{_id}}">
             <td class="col-xs-2">{{getFormattedDate}}</td>
-            <td class="col-xs-6">{{category_id}}
+            <td class="col-xs-5">{{category_id}}
               <div class="comments">
                 {{comments}}
               </div>
             </td>
-            <td class="col-xs-2 {{type}}">${{getAmount}}</td>
+            <td class="col-xs-2 {{type}}">$
+              <div class="transaction-amount">{{getAmount}}</div>
+            </td>
+            <td class="col-xs-1 text-center">
+              <a href="#" class="btn btn-danger btn-xs transaction-remove" role="button">
+                <i class="glyphicon glyphicon-remove"></i>
+              </a>
+            </td>
           </tr>
         {{/each}}
         </tbody>
@@ -210,9 +217,11 @@
         </thead>
         <tbody>
         {{#each categories}}
-          <tr>
+          <tr class="category-row" id="{{_id}}">
             <td class="col-xs-3">{{_id}}</td>
-            <td class="col-xs-1">${{getAmount}}</td>
+            <td class="col-xs-1">$
+              <div class="category-amount">{{getAmount}}</div>
+            </td>
             <td class="col-xs-6">
               <div class="progress">
                 <div class="progress-bar {{getProgressBarClass}}" role="progressbar" aria-valuemin="0"

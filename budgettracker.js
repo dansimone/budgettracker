@@ -102,11 +102,9 @@ if (Meteor.isClient) {
     },
     getTodaysDateFormatted: function () {
       var today = new Date();
-      //today = new Date(today.getTime() + (3600000*offset));
-
       var month = today.getMonth() + 1;
       month = month < 10 ? '0' + month : '' + month;
-      var day = today.getDate() + 1;
+      var day = today.getDate();
       day = day < 10 ? '0' + day : '' + day;
       var dateFormatted = today.getFullYear() + "-" + month + "-" + day;
       //console.log("OKOKKO" + dateFormatted);
@@ -145,7 +143,6 @@ if (Meteor.isClient) {
           else {
             Session.set("formError-transaction-date", false);
           }
-
           // Return control if any form errors found
           if (error) {
             return;
@@ -160,18 +157,20 @@ if (Meteor.isClient) {
           else {
             category = event.target.category.value;
           }
-          //
-          //var date = new Date(dateString);
-          //var today = new Date();
-          //console.log("TODAY: " + today);
-          //if (today.getFullYear() == date.getFullYear() && today.getMonth() == date.getMonth()
-          //    && today.getDate() == date.getDate()) {
-          //}
+
+          // If the date entered is today, use the exact time now as the Date, otherwise
+          // just use the day
+          var date = new Date(dateString);
+          var today = new Date();
+          if (today.getFullYear() == date.getFullYear() && today.getMonth() == date.getMonth()
+              && today.getDate() == date.getDate()) {
+            date = today;
+          }
 
           Transactions.insert({
             category_id: category,
             amount: parseFloat(-amount),
-            date: new Date(dateString),
+            date: date,
             type: type,
             comments: comments
           });
@@ -208,14 +207,33 @@ if (Meteor.isClient) {
         },
         'click .form-group.has-error input,textarea': function (event) {
           Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
+        },
+        'click tr.transaction-row td div.transaction-amount': function () {
+          var cell = $(event.target);
+          var currentAmount = cell.text();
+          cell.text("");
+          var txnId = cell.closest('tr').attr("id");
+          $('<input />').appendTo(cell).val(currentAmount).select().blur(
+              function () {
+                var newAmount = parseFloat($(this).val()).toFixed(2);
+                cell.find("input").remove();
+                if (newAmount != currentAmount) {
+                  cell.text("");
+                  Transactions.update({_id: txnId}, {$set: {amount: parseFloat(newAmount)}});
+                }
+                else {
+                  cell.text(newAmount);
+                }
+              });
+        },
+        'click tr.transaction-row td a.transaction-remove': function () {
+          event.preventDefault();
+          var cell = $(event.target);
+          var txnId = cell.closest('tr').attr("id");
+          if (confirm("Are you sure you want to delete this transaction?") == true) {
+            Transactions.remove(txnId);
+          }
         }
-
-        //'click tr.transaction-row td': function () {
-        //  var name = event.target.hidden();
-        //  //var newText = $(this).val();
-        //  //$(this).parent().text(newText).find('textarea').remove();
-        //  console.log("OKOK1 " + name);
-        //}
       }
   );
 
@@ -301,6 +319,25 @@ if (Meteor.isClient) {
         },
         'click .form-group.has-error input,textarea': function (event) {
           Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
+        },
+        'click tr.category-row td div.category-amount': function () {
+          var cell = $(event.target);
+          var currentAmount = cell.text();
+          cell.text("");
+          var categoryId = cell.closest('tr').attr("id");
+          $('<input />').appendTo(cell).val(currentAmount).select().blur(
+              function () {
+                var newAmount = parseFloat($(this).val()).toFixed(2);
+                cell.find("input").remove();
+                if (newAmount != currentAmount) {
+                  cell.text("");
+                  Categories.update({_id: categoryId}, {$set: {amount: parseFloat(newAmount)}});
+                  console.log("Updated " + categoryId + " to " + newAmount);
+                }
+                else {
+                  cell.text(newAmount);
+                }
+              });
         }
       }
   );
@@ -342,7 +379,6 @@ if (Meteor.isServer) {
     //}
   });
 }
-
 
 /**
  * General Helper Functions.
