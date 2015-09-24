@@ -217,8 +217,12 @@ if (Meteor.isClient) {
           var currentAmount = cell.text();
           cell.text("");
           var txnId = cell.closest('tr').attr("id");
-          $('<input />').appendTo(cell).val(currentAmount).select().blur(
-              function () {
+          $('<input />').appendTo(cell).attr("type", "number").val(currentAmount).select().on("blur keyup",
+              function (event) {
+                // Ignore anything that is a key press but *not* an enter
+                if (event.keyCode != null && event.keyCode != 13) {
+                  return;
+                }
                 var newAmount = parseFloat($(this).val()).toFixed(2);
                 cell.find("input").remove();
                 if (newAmount != currentAmount) {
@@ -329,8 +333,12 @@ if (Meteor.isClient) {
           var currentAmount = cell.text();
           cell.text("");
           var categoryId = cell.closest('tr').attr("id");
-          $('<input />').appendTo(cell).val(currentAmount).select().blur(
-              function () {
+          $('<input />').appendTo(cell).attr("type", "number").val(currentAmount).select().on("blur keyup",
+              function (event) {
+                // Ignore anything that is a key press but *not* an enter
+                if (event.keyCode != null && event.keyCode != 13) {
+                  return;
+                }
                 var newAmount = parseFloat($(this).val()).toFixed(2);
                 cell.find("input").remove();
                 if (newAmount != currentAmount) {
