@@ -117,7 +117,7 @@ if (Meteor.isClient) {
   });
   Template.transactionslist.events(
       {
-        'click div.add-transaction': function () {
+        'click div.add-transaction.a': function () {
           event.preventDefault();
           if (Session.get("adding_transaction")) {
             Session.set("adding_transaction", false);
@@ -212,18 +212,25 @@ if (Meteor.isClient) {
         'click .form-group.has-error input,textarea': function (event) {
           Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
         },
-        'click tr.transaction-row td div.transaction-amount': function () {
+        'click tr.transaction-row td span.transaction-amount': function () {
           var cell = $(event.target);
           var currentAmount = cell.text();
           cell.text("");
           var txnId = cell.closest('tr').attr("id");
-          $('<input />').appendTo(cell).attr("type", "number").val(currentAmount).select().on("blur keyup",
+          $('<input />').appendTo(cell).val(currentAmount).select().on("blur keyup",
               function (event) {
                 // Ignore anything that is a key press but *not* an enter
                 if (event.keyCode != null && event.keyCode != 13) {
                   return;
                 }
-                var newAmount = parseFloat($(this).val()).toFixed(2);
+                // Restore value if not a number
+                var newAmount;
+                if (isNaN($(this).val())) {
+                  newAmount = currentAmount;
+                }
+                else {
+                  newAmount = parseFloat($(this).val()).toFixed(2);
+                }
                 cell.find("input").remove();
                 if (newAmount != currentAmount) {
                   cell.text("");
@@ -288,7 +295,7 @@ if (Meteor.isClient) {
   });
   Template.categorieslist.events(
       {
-        'click div.add-category': function () {
+        'click div.add-category.a': function () {
           event.preventDefault();
           if (Session.get("adding_category")) {
             Session.set("adding_category", false);
@@ -328,18 +335,25 @@ if (Meteor.isClient) {
         'click .form-group.has-error input,textarea': function (event) {
           Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
         },
-        'click tr.category-row td div.category-amount': function () {
+        'click tr.category-row td span.category-amount': function () {
           var cell = $(event.target);
           var currentAmount = cell.text();
           cell.text("");
           var categoryId = cell.closest('tr').attr("id");
-          $('<input />').appendTo(cell).attr("type", "number").val(currentAmount).select().on("blur keyup",
+          $('<input />').appendTo(cell).val(currentAmount).select().on("blur keyup",
               function (event) {
                 // Ignore anything that is a key press but *not* an enter
                 if (event.keyCode != null && event.keyCode != 13) {
                   return;
                 }
-                var newAmount = parseFloat($(this).val()).toFixed(2);
+                // Restore value if not a number
+                var newAmount;
+                if (isNaN($(this).val())) {
+                  newAmount = currentAmount;
+                }
+                else {
+                  newAmount = parseFloat($(this).val()).toFixed(2);
+                }
                 cell.find("input").remove();
                 if (newAmount != currentAmount) {
                   cell.text("");
