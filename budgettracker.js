@@ -117,7 +117,7 @@ if (Meteor.isClient) {
   });
   Template.transactionslist.events(
       {
-        'click div.add-transaction.a': function () {
+        'click div.add-transaction a': function () {
           event.preventDefault();
           if (Session.get("adding_transaction")) {
             Session.set("adding_transaction", false);
@@ -156,7 +156,7 @@ if (Meteor.isClient) {
           var type = event.target.type.value;
           var category;
           if (type == "deposit") {
-            category = "Deposit";
+            category = "deposit";
           }
           else {
             category = event.target.category.value;
@@ -295,7 +295,7 @@ if (Meteor.isClient) {
   });
   Template.categorieslist.events(
       {
-        'click div.add-category.a': function () {
+        'click div.add-category a': function () {
           event.preventDefault();
           if (Session.get("adding_category")) {
             Session.set("adding_category", false);
@@ -375,12 +375,13 @@ if (Meteor.isServer) {
     if (Transactions.find().count() === 0) {
       var transactions = JSON.parse(Assets.getText("transactions.json"));
       _.each(transactions, function (transaction) {
+        //console.log("OKOK " + transaction.amount);
         Transactions.insert(
             {
               category_id: transaction.category_id,
               comments: transaction.comments,
               date: new Date(transaction.date),
-              type: transaction.type,
+              type: transaction.type.toLowerCase(),
               amount: transaction.amount
             }
         );
@@ -389,18 +390,15 @@ if (Meteor.isServer) {
     if (Categories.find().count() === 0) {
       var categories = JSON.parse(Assets.getText("categories.json"));
       _.each(categories, function (category) {
-        Categories.insert(
-            {
-              _id: category._id,
-              amount: Math.abs(category.amount)
-            }
-        );
+        Categories.insert({
+          _id: category._id,
+          amount: Math.abs(category.amount)
+        });
       })
     }
     if (Meteor.users.find().count() === 0) {
       var users = JSON.parse(Assets.getText("users.json"));
       _.each(users, function (user) {
-        console.log("USER: " + user.toString());
         Meteor.users.insert(user);
       })
     }
