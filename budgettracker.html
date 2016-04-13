@@ -1,0 +1,264 @@
+<head>
+  <title>Our BudgetTracker</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+</head>
+
+<body role="document">
+{{> main}}
+</body>
+
+<!-- Main Template -->
+<template name="main">
+  {{#if  isLoggedIn}}
+    <div class="navbar navbar-inverse navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">
+            <img src="/images/nathan-vivi-logo.png" class="img-responsive visible-sm visible-md visible-lg">
+            <img src="/images/nathan-vivi-logo-small.png" class="img-responsive visible-xs">
+          </a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#transactions">Transactions</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#logout" class="logout">Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-offset-2 col-sm-8">
+          <div class="text-center">
+            <h1 class="title">Our Budget</h1>
+          </div>
+          {{> monthselection}}
+          {{> transactionslist}}
+          {{> categorieslist}}
+        </div>
+      </div>
+    </div>
+  {{else}}
+    {{> signin}}
+  {{/if}}
+</template>
+
+<!-- Sign In Template -->
+<template name="signin">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-offset-3 col-sm-6 col-xs-offset-1 col-xs-10">
+        <div id="transactions" class="panel panel-default">
+          <div class="panel-heading">
+            <div class="panel-title-advanced clearfix">
+              <h1 class="panel-title subtitle">Log In</h1>
+            </div>
+          </div>
+          <div class="panel-body">
+            <form class="form-horizontal login-form">
+              <div class="form-group">
+                <label class="control-label">Password:</label>
+                <input class="form-control password" name="password" id="password" type="password">
+              </div>
+              <div class="form-group">
+                <input class="btn btn-primary col-xs-offset-5" type="submit" value="Log In">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Month Selection Template -->
+<template name="monthselection">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <div class="panel-title-advanced clearfix">
+        <h1 class="panel-title subtitle">Month</h1>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="text-center">
+        <input class="month-select" type="month" value="{{getCurrentMonth}}"/>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Transactions List Template -->
+<template name="transactionslist">
+  <div id="transactions" class="panel panel-default">
+    <div class="panel-heading">
+      <div class="panel-title-advanced clearfix">
+        <h1 class="panel-title subtitle">Transactions</h1>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="add-transaction">
+        <a href="#" class="btn btn-success" role="button">
+          <i class="glyphicon glyphicon-plus"></i>
+        </a>
+      </div>
+      {{#if  isAddingTransaction}}
+        <form class="add-transaction form-horizontal">
+          {{#if isWithdrawal}}
+            <div class="form-group required">
+              <label class="col-xs-5 col-sm-3 control-label">Category:</label>
+
+              <div class="col-xs-7 col-sm-9">
+                <select class="form-control" name="category">
+                  {{#each categories}}
+                    <option value="{{_id}}">{{_id}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+          {{/if}}
+          <div class="form-group required {{getErrorClass "transaction-amount"}}" name="transaction-amount">
+            <label class="col-xs-5 col-sm-3 control-label">Amount:</label>
+
+            <div class="col-xs-7 col-sm-9">
+              <input class="form-control" type="number" min="0.01" step="0.01" name="amount">
+            </div>
+          </div>
+          <div class="form-group required {{getErrorClass "transaction-date"}}" name="transaction-date">
+            <label class="col-xs-5 col-sm-3 control-label">Date:</label>
+
+            <div class="col-xs-7 col-sm-9">
+              <input class="form-control" type="date" name="date" value="{{getTodaysDateFormatted}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-5 col-sm-3 control-label">Comments:</label>
+
+            <div class="col-xs-7 col-sm-9">
+              <input class="form-control" type="text" name="comments">
+            </div>
+          </div>
+          <div class="form-group required">
+            <label class="col-xs-5 col-sm-3 control-label">Type:</label>
+
+            <div class="col-xs-7 col-sm-9">
+              <select class="transaction-type form-control" name="type">
+                <option value="withdrawal">Withdrawal</option>
+                <option value="deposit">Deposit</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-group pull-right">
+            <input class="btn btn-primary" type="submit" value="Add">
+          </div>
+        </form>
+      {{/if}}
+      <table class="sortable table table-bordered table-striped table-hover table-condensed">
+        <thead>
+        <tr>
+          <th class="sort-dates">Date</th>
+          <th class="sort-categories">Category</th>
+          <th class="sort-amounts">Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each transactions}}
+          <tr class="transaction-row" id="{{_id}}">
+            <td class="col-xs-2">{{getFormattedDate}}</td>
+            <td class="col-xs-5">{{category_id}}
+              <div class="comments">
+                {{comments}}
+              </div>
+            </td>
+            <td class="col-xs-2 {{type}}">
+              $<span class="transaction-amount">{{getAmount}}</span>
+            </td>
+            <td class="col-xs-1 text-center">
+              <a href="#" class="btn btn-danger btn-xs transaction-remove" role="button">
+                <i class="glyphicon glyphicon-remove"></i>
+              </a>
+            </td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<!-- Categories List Template -->
+<template name="categorieslist">
+  <div id="categories" class="panel panel-default">
+    <div class="panel-heading">
+      <div class="panel-title-advanced clearfix">
+        <h1 class="panel-title subtitle">Categories</h1>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="add-category">
+        <a href="#" class="btn btn-success" role="button">
+          <i class="glyphicon glyphicon-plus"></i>
+        </a>
+      </div>
+      {{#if  isAddingCategory}}
+        <form class="add-category form-horizontal">
+          <div class="form-group required {{getErrorClass "category-name"}}" name="category-name">
+            <label class="col-xs-5 col-sm-3 control-label">Name:</label>
+
+            <div class="col-xs-7 col-sm-9">
+              <input class="form-control" type="text" name="name">
+            </div>
+          </div>
+          <div class="form-group required {{getErrorClass "category-amount"}}" name="category-amount">
+            <label class="col-xs-5 col-sm-3 control-label">Amount:</label>
+
+            <div class="col-xs-7 col-sm-9">
+              <input class="form-control" type="number" min="0.01" step="0.01" name="amount">
+            </div>
+          </div>
+          <div class="btn-group pull-right">
+            <input class="btn btn-primary" type="submit" value="Add">
+          </div>
+        </form>
+      {{/if}}
+      <table class="table table-bordered table-striped table-hover table-condensed">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Used</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each categories}}
+          <tr class="category-row" id="{{_id}}">
+            <td class="col-xs-4">{{_id}}</td>
+            <td class="col-xs-2">
+              $<span class="category-amount">{{getAmount}}</span>
+            </td>
+            <td class="col-xs-6">
+              <div class="progress">
+                <div class="progress-bar {{getProgressBarClass}}" role="progressbar" aria-valuemin="0"
+                     aria-valuemax="100" style="min-width: 3em; width:{{getPercentUsed}}%">
+                  ${{getAmountUsedForThisMonth}}
+                </div>
+              </div>
+            </td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+
+
+
