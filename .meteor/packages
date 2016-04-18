@@ -6,23 +6,9 @@
 
 autopublish
 insecure
+meteor-platform
 
 twbs:bootstrap
 u2622:persistent-session
 accounts-password
 maazalik:highcharts
-meteor-base
-mobile-experience
-mongo
-blaze-html-templates
-session
-jquery
-tracker
-logging
-reload
-random
-ejson
-spacebars
-check
-standard-minifier-css
-standard-minifier-js
