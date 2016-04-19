@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "Car Insurance",
+    "amount": -150.00
+  },
+  {
+    "_id": "Cable TV",
+    "amount": -100.00
+  },
+  {
+    "_id": "Electric",
+    "amount": -150.00
+  },
+  {
+    "_id": "Gasoline",
+    "amount": -300.00
+  },
+  {
+    "_id": "Groceries",
+    "amount": -800.00
+  }
+]
