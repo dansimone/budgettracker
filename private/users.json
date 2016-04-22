@@ -2,7 +2,7 @@
   {
     "services": {
       "password": {
-        "bcrypt": "$2a$10$UOzPyth0.C.DSAuASJs.QulvVoH8pSG83LDB34p1KCgAwD9Xn10VK"
+        "bcrypt": "$2a$10$/x4zRDrFDEGnJTZaD8gwE.YZnFoWV/57FyitMJ2VGIhGR.dMVKzCi"
       }
     },
     "username": "foo",
