@@ -25,6 +25,7 @@
           <ul class="nav navbar-nav">
             <li><a href="#transactions">Transactions</a></li>
             <li><a href="#categories">Categories</a></li>
+            <li><a href="#changepassword" class="changepassword">Change Password</a></li>
             <li><a href="#logout" class="logout">Log Out</a></li>
           </ul>
         </div>
@@ -40,6 +41,37 @@
           {{> monthselection}}
           {{> transactionslist}}
           {{> categorieslist}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for changing password -->
+    <div class="modal fade in" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"></button>
+            <h4 class="modal-title">Change Password</h4>
+          </div>
+          <div class="modal-body">
+            <div class="panel-body">
+              <form class="form-horizontal changepassword-form">
+                <div class="form-group">
+                  <label class="control-label">Password:</label>
+                  <input class="form-control password" name="password" id="password" type="password">
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Confirm:</label>
+                  <input class="form-control password" name="confirmpassword" id="confirmpassword" type="password">
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="changepassword-submit">Submit</button>
+          </div>
         </div>
       </div>
     </div>

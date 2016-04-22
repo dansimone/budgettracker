@@ -12,10 +12,23 @@ if (Meteor.isClient) {
     }
   });
   Template.main.events({
+    "click a.changepassword": function (event, template) {
+      $("#changePasswordModal").modal("show");
+    },
     'click a.logout': function () {
       event.preventDefault();
       Session.clear("logged-in");
       Meteor.logout();
+    },
+
+
+    "submit .changepassword-form": function (event) {
+      // Prevent default browser form submit
+      event.preventDefault();
+      const target = event.target;
+      const text = target.text.value;
+      var val = event.target.password.value;
+      console.log("FFFFFFFF " + val);
     }
   });
 
@@ -388,14 +401,15 @@ if (Meteor.isClient) {
 // On server startup, create some players if the database is empty.
 if (Meteor.isServer) {
   Meteor.startup(function () {
+
+    // Add sample transactions
     if (Transactions.find().count() === 0) {
       var transactions = JSON.parse(Assets.getText("transactions.json"));
       _.each(transactions, function (transaction) {
-        //console.log("OKOK " + transaction.amount);
 
+        // Give the transaction a random date over the last 6 days
         var randomDate = new Date();
-        var rand = Math.floor(Math.random() * 6);
-        randomDate.setDate(randomDate.getDate() - rand);
+        randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 6));
 
         Transactions.insert(
           {
@@ -408,6 +422,7 @@ if (Meteor.isServer) {
         );
       })
     }
+    // Add sample categories
     if (Categories.find().count() === 0) {
       var categories = JSON.parse(Assets.getText("categories.json"));
       _.each(categories, function (category) {
@@ -417,6 +432,7 @@ if (Meteor.isServer) {
         });
       })
     }
+    // Add default (only, for now) user
     if (Meteor.users.find().count() === 0) {
       var users = JSON.parse(Assets.getText("users.json"));
       _.each(users, function (user) {
