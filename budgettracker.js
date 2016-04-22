@@ -18,6 +18,7 @@ if (Meteor.isClient) {
   Template.main.events({
     // Clicking the Change Password tab
     "click a.changepassword": function (event, template) {
+      event.preventDefault();
       $("#changePasswordModal").modal("show");
     },
     // Clicking the Logout tab
