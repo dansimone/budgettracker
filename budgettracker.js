@@ -369,7 +369,7 @@ if (Meteor.isClient) {
         event.preventDefault();
         var cell = $(event.target);
         var categoryId = cell.closest('tr').attr("id");
-        if (confirm("Are you sure you want to delete this category?") == true) {
+        if (confirm("Are you sure you want to delete this entire category and all of its associated transactions?") == true) {
           Categories.remove(categoryId);
           // Delete any matching transactions
           matchingTransactions = Transactions.find(
@@ -392,11 +392,16 @@ if (Meteor.isServer) {
       var transactions = JSON.parse(Assets.getText("transactions.json"));
       _.each(transactions, function (transaction) {
         //console.log("OKOK " + transaction.amount);
+
+        var randomDate = new Date();
+        var rand = Math.floor(Math.random() * 6);
+        randomDate.setDate(randomDate.getDate() - rand);
+
         Transactions.insert(
           {
             category_id: transaction.category_id,
             comments: transaction.comments,
-            date: new Date(transaction.date),
+            date: randomDate,
             type: transaction.type.toLowerCase(),
             amount: transaction.amount
           }
