@@ -49,6 +49,7 @@
     <div class="modal fade in" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
       <div class="modal-dialog">
+        <form class="form-horizontal change-password">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"></button>
@@ -56,23 +57,32 @@
           </div>
           <div class="modal-body">
             <div class="panel-body">
-              <form class="form-horizontal changepassword-form">
-                <div class="form-group">
-                  <label class="control-label">Password:</label>
-                  <input class="form-control password" name="password" id="password" type="password">
+              <div class="form-group {{getErrorClass "changepassword-oldpassword"}}" name="changepassword-oldpassword">
+                <label class="col-xs-5 col-sm-5 control-label">Old Password:</label>
+                <div class="col-xs-7 col-sm-7">
+                  <input class="form-control oldpassword" type="password">
                 </div>
-                <div class="form-group">
-                  <label class="control-label">Confirm:</label>
-                  <input class="form-control password" name="confirmpassword" id="confirmpassword" type="password">
+              </div>
+              <div class="form-group {{getErrorClass "changepassword-newpassword"}}" name="changepassword-newpassword">
+                <label class="col-xs-5 col-sm-5 control-label">New Password:</label>
+                <div class="col-xs-7 col-sm-7">
+                  <input class="form-control newpassword" type="password">
                 </div>
-              </form>
+              </div>
+              <div class="form-group {{getErrorClass "changepassword-confirmnewpassword"}}" name="changepassword-confirmnewpassword">
+                <label class="col-xs-5 col-sm-5 control-label">Confirm New Password:</label>
+                <div class="col-xs-7 col-sm-7">
+                  <input class="form-control confirmnewpassword" type="password">
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="changepassword-submit">Submit</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="changepassword-submit">Submit</button>
           </div>
         </div>
+        </form>
       </div>
     </div>
   {{else}}

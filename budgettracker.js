@@ -3,32 +3,109 @@ Categories = new Mongo.Collection("categories");
 Transactions = new Mongo.Collection("transactions");
 
 if (Meteor.isClient) {
+
   /**
    * Main Helpers
    */
   Template.main.helpers({
     isLoggedIn: function () {
       return Session.get("logged-in") != null && Session.get("logged-in");
+    },
+    getErrorClass: function (fieldName) {
+      return getErrorClass(fieldName);
     }
   });
   Template.main.events({
+    // Clicking the Change Password tab
     "click a.changepassword": function (event, template) {
       $("#changePasswordModal").modal("show");
     },
+    // Clicking the Logout tab
     'click a.logout': function () {
       event.preventDefault();
       Session.clear("logged-in");
       Meteor.logout();
     },
-
-
-    "submit .changepassword-form": function (event) {
-      // Prevent default browser form submit
+    // Submitting the Change Password form
+    'submit form.change-password': function () {
       event.preventDefault();
-      const target = event.target;
-      const text = target.text.value;
-      var val = event.target.password.value;
-      console.log("FFFFFFFF " + val);
+      var changePasswordForm = $(event.currentTarget);
+      var oldPassword = changePasswordForm.find('.oldpassword').val();
+      var newPassword = changePasswordForm.find('.newpassword').val();
+      var confirmNewPassword = changePasswordForm.find('.confirmnewpassword').val();
+
+      // In case of error, highlight the offending fields
+      var error = false;
+      if (oldPassword.length == 0) {
+        Session.set("formError-changepassword-oldpassword", true);
+        error = true;
+      }
+      else {
+        Session.set("formError-changepassword-oldpassword", false);
+      }
+      if (newPassword.length == 0) {
+        Session.set("formError-changepassword-newpassword", true);
+        error = true;
+      }
+      else {
+        Session.set("formError-changepassword-newpassword", false);
+      }
+      if (confirmNewPassword.length == 0) {
+        Session.set("formError-changepassword-confirmnewpassword", true);
+        error = true;
+      }
+      else {
+        Session.set("formError-changepassword-confirmnewpassword", false);
+      }
+      if (newPassword != confirmNewPassword) {
+        Session.set("formError-changepassword-newpassword", true);
+        Session.set("formError-changepassword-confirmnewpassword", true);
+        error = true;
+      }
+
+      // Return control if any form errors found
+      if (error) {
+        return;
+      }
+
+      // Now, actually change the password
+      Session.set("formError-changepassword-oldpassword", false);
+      Session.set("formError-changepassword-newpassword", false);
+      Session.set("formError-changepassword-confirmnewpassword", false);
+
+      Accounts.changePassword(oldPassword, newPassword, function (error) {
+        // For now, we'll consider any failure at this point due to an incorrect
+        // old password
+        if (error != null) {
+          Session.set("formError-changepassword-oldpassword", true);
+        }
+        else {
+          $("#changePasswordModal").modal("hide");
+          changePasswordForm.find('.oldpassword').val("");
+          changePasswordForm.find('.newpassword').val("");
+          changePasswordForm.find('.confirmnewpassword').val("");
+        }
+      });
+    },
+    // Selecting the old password field, when its already shown in error
+    'click .form-group.has-error input.oldpassword': function (event) {
+      Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
+    },
+    // Anything typed into the newpassword or confirmnewpassword fields
+    'keyup .form-group input': function (event) {
+      var changePasswordForm = $(event.currentTarget).closest('form');
+      var newPassword = changePasswordForm.find('.newpassword').val();
+      var confirmNewPassword = changePasswordForm.find('.confirmnewpassword').val();
+
+      // Show both new and confirm password fields in error if the current values don't match
+      if (newPassword != confirmNewPassword) {
+        Session.set("formError-changepassword-newpassword", true);
+        Session.set("formError-changepassword-confirmnewpassword", true);
+      }
+      else {
+        Session.set("formError-changepassword-newpassword", false);
+        Session.set("formError-changepassword-confirmnewpassword", false);
+      }
     }
   });
 
@@ -36,6 +113,7 @@ if (Meteor.isClient) {
    * Sign In Helpers
    */
   Template.signin.events({
+    // Submitting the Login form
     'submit form.login-form': function () {
       event.preventDefault();
       var signInForm = $(event.currentTarget);
@@ -130,6 +208,7 @@ if (Meteor.isClient) {
   });
   Template.transactionslist.events(
     {
+      // Clicking Add Transaction button
       'click div.add-transaction a': function () {
         event.preventDefault();
         if (Session.get("adding_transaction")) {
@@ -139,10 +218,11 @@ if (Meteor.isClient) {
           Session.set("adding_transaction", true);
         }
       },
+      // Submitting a new transaction
       'submit form.add-transaction': function () {
-        // Prevent default browser form submit
         event.preventDefault();
 
+        // In case of error, highlight the offending fields
         var error = false;
         var amount = event.target.amount.value;
         if (amount.length == 0) {
@@ -184,6 +264,7 @@ if (Meteor.isClient) {
           date = today;
         }
 
+        // Insert the new transaction
         Transactions.insert({
           category_id: category,
           amount: parseFloat(-amount),
@@ -201,6 +282,11 @@ if (Meteor.isClient) {
           Session.set("adding_transaction_withdrawal", true);
         }
       },
+      // Clicking any field of the Add Transaction form currently in error
+      'click .form-group.has-error input,textarea': function (event) {
+        Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
+      },
+      // Clicking the Transaction table category column
       'click th.sort-categories': function () {
         var sortOrder = 1;
         if (Session.get('txnSortField') != null && Session.get('txnSortField').category_id != null) {
@@ -208,6 +294,7 @@ if (Meteor.isClient) {
         }
         Session.set('txnSortField', {category_id: sortOrder, date: -1});
       },
+      // Clicking the Transaction table date column
       'click th.sort-dates': function () {
         var sortOrder = 1;
         if (Session.get('txnSortField') != null && Session.get('txnSortField').date != null) {
@@ -215,6 +302,7 @@ if (Meteor.isClient) {
         }
         Session.set('txnSortField', {date: sortOrder});
       },
+      // Clicking the Transaction table amount column
       'click th.sort-amounts': function () {
         var sortOrder = 1;
         if (Session.get('txnSortField') != null && Session.get('txnSortField').amount != null) {
@@ -222,10 +310,9 @@ if (Meteor.isClient) {
         }
         Session.set('txnSortField', {amount: sortOrder, date: -1});
       },
-      'click .form-group.has-error input,textarea': function (event) {
-        Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
-      },
+      // Clicking any amount in the Transaction table
       'click tr.transaction-row td span.transaction-amount': function () {
+        // A little logic to make the amount temporarily editable
         var cell = $(event.target);
         var currentAmount = cell.text();
         cell.text("");
@@ -254,6 +341,7 @@ if (Meteor.isClient) {
             }
           });
       },
+      // Clicking on the remove button for a row in the Transaction table
       'click tr.transaction-row td a.transaction-remove': function () {
         event.preventDefault();
         var cell = $(event.target);
@@ -308,6 +396,7 @@ if (Meteor.isClient) {
   });
   Template.categorieslist.events(
     {
+      // Clicking the Add Category button
       'click div.add-category a': function () {
         event.preventDefault();
         if (Session.get("adding_category")) {
@@ -317,9 +406,11 @@ if (Meteor.isClient) {
           Session.set("adding_category", true);
         }
       },
+      // Submitting the Add Category form
       'submit form.add-category': function () {
-        // Prevent default browser form submit
         event.preventDefault();
+
+        // In case of error, highlight the offending fields
         var error = false;
         var name = event.target.name.value;
         if (name.length == 0) {
@@ -342,13 +433,17 @@ if (Meteor.isClient) {
           return;
         }
 
+        // Insert the new category
         Categories.insert({_id: name, amount: parseFloat(amount)});
         Session.set("adding_category", false);
       },
+      // Clicking any field of the Add Category form currently in error
       'click .form-group.has-error input,textarea': function (event) {
         Session.set("formError-" + event.target.closest('.form-group').getAttribute("name"), false);
       },
+      // Clicking any amount in the Category table
       'click tr.category-row td span.category-amount': function () {
+        // A little logic to make the amount temporarily editable
         var cell = $(event.target);
         var currentAmount = cell.text();
         cell.text("");
@@ -378,6 +473,7 @@ if (Meteor.isClient) {
             }
           });
       },
+      // Clicking on the remove button for a row in the Transaction table
       'click tr.category-row td a.category-remove': function () {
         event.preventDefault();
         var cell = $(event.target);
@@ -398,7 +494,7 @@ if (Meteor.isClient) {
   );
 }
 
-// On server startup, create some players if the database is empty.
+// On server startup, seed some sample data, if the DB is empty.
 if (Meteor.isServer) {
   Meteor.startup(function () {
 
@@ -432,7 +528,7 @@ if (Meteor.isServer) {
         });
       })
     }
-    // Add default (only, for now) user
+    // Add default (one, for now) user
     if (Meteor.users.find().count() === 0) {
       var users = JSON.parse(Assets.getText("users.json"));
       _.each(users, function (user) {
@@ -455,13 +551,16 @@ function getSelectedMonthStartDate() {
   }
 }
 
-function getAmountUsedForMonth(transaction, monthStartDate) {
+/**
+ * Adds up the total amount used for the given category in the given month.
+ */
+function getAmountUsedForMonth(category, monthStartDate) {
   var amountUsed = 0;
   var firstDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth(), 1);
   var lastDay = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth() + 1, 1);
   txnsThisMonth = Transactions.find(
     {
-      category_id: transaction._id,
+      category_id: category._id,
       date: {
         $gte: firstDay,
         $lt: lastDay
