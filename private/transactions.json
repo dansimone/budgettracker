@@ -28,11 +28,12 @@
     "comments":""
   },
   {
-    "date":"9/3/2015",
-    "type":"Withdrawal",
-    "amount":-27.85,
-    "category_id":"Gasoline",
-    "comments":""
+    "date": "9/3/2015",
+    "type": "Withdrawal",
+    "amount": -27.85,
+    "category_id": "Gasoline",
+    "comments": ""
+  },
   {
     "date":"9/3/2015",
     "type":"Withdrawal",
