@@ -3,72 +3,60 @@
     "type": "Withdrawal",
     "amount": -1500,
     "category_id": "Car Insurance",
-    "comments": ""
+    "comments": "Monthly payment"
   },
   {
     "type": "Withdrawal",
     "amount": -100,
     "category_id": "Cable TV",
-    "comments": ""
+    "comments": "Monthly payment"
   },
   {
     "type": "Electric",
     "amount": -87.56,
     "category_id": "Electric",
-    "comments": ""
+    "comments": "Monthly payment"
   },
   {
     "type": "Withdrawal",
     "amount": -27.85,
     "category_id": "Gasoline",
-    "comments": ""
+    "comments": "Refill"
   },
   {
     "type": "Withdrawal",
     "amount": -27.85,
     "category_id": "Gasoline",
-    "comments": ""
-  },
-  {
-    "type": "Withdrawal",
-    "amount": -45.83,
-    "category_id": "Gasoline",
-    "comments": ""
-  },
-  {
-    "type": "Withdrawal",
-    "amount": -40.02,
-    "category_id": "Gasoline",
-    "comments": ""
+    "comments": "Another refill"
   },
   {
     "type": "Withdrawal",
     "amount": -37.85,
     "category_id": "Gasoline",
-    "comments": ""
+    "comments": "Yet another refill"
   },
   {
     "type": "Withdrawal",
-    "amount": -76.54,
+    "amount": -45.54,
     "category_id": "Groceries",
-    "comments": ""
+    "comments": "Some snacks for movie night"
   },
   {
     "type": "Withdrawal",
-    "amount": -120.55,
+    "amount": -180.55,
     "category_id": "Groceries",
-    "comments": ""
+    "comments": "Weekly groceries"
   },
   {
     "type": "Withdrawal",
     "amount": -92.53,
     "category_id": "Groceries",
-    "comments": ""
+    "comments": "Steaks for the cookout"
   },
   {
     "type": "Withdrawal",
     "amount": -88.94,
     "category_id": "Groceries",
-    "comments": ""
+    "comments": "Weekly groceries"
   }
 ]
