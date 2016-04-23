@@ -250,7 +250,7 @@ if (Meteor.isClient) {
         var type = event.target.type.value;
         var category;
         if (type == "deposit") {
-          category = "deposit";
+          category = "Deposit";
         }
         else {
           category = event.target.category.value;

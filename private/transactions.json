@@ -1,5 +1,23 @@
 [
   {
+    "type": "Deposit",
+    "amount": 2000,
+    "category_id": "Deposit",
+    "comments": "Paycheck"
+  },
+  {
+    "type": "Deposit",
+    "amount": 100,
+    "category_id": "Deposit",
+    "comments": "Joe finally paid back that money I lent him"
+  },
+  {
+    "type": "Deposit",
+    "amount": 50,
+    "category_id": "Deposit",
+    "comments": "Refund on that shirt I didn't like"
+  },
+  {
     "type": "Withdrawal",
     "amount": -1500,
     "category_id": "Car Insurance",
@@ -12,8 +30,8 @@
     "comments": "Monthly payment"
   },
   {
-    "type": "Electric",
-    "amount": -87.56,
+    "type": "Withdrawal",
+    "amount": -27.85,
     "category_id": "Electric",
     "comments": "Monthly payment"
   },
